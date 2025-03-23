@@ -5,11 +5,16 @@ import 'package:get/get.dart';
 import 'app/routes/app_pages.dart';
 
 void main() {
-  runApp(
-    GetMaterialApp(
-      title: "Application",
-      initialRoute: AppPages.INITIAL,
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: Routes.LOGIN, // Mulai dari halaman Login
       getPages: AppPages.routes,
-    ),
-  );
+    );
+  }
 }
