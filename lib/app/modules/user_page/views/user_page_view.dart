@@ -8,7 +8,7 @@ class UserPageView extends GetView<UserPageController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFE8F1FF),
       appBar: AppBar(
         backgroundColor: Colors.blue,
         centerTitle: true,
@@ -111,29 +111,6 @@ class UserPageView extends GetView<UserPageController> {
               const SizedBox(height: 20),
             ],
           ),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        height: 120,
-        decoration: BoxDecoration(
-          color: Color(0xFF8DC8FF),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white70,
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(icon: ImageIcon(AssetImage('assets/images/home.png')), label: 'Beranda'),
-            BottomNavigationBarItem(icon: ImageIcon(AssetImage('assets/images/activity_history.png')), label: 'Riwayat'),
-            BottomNavigationBarItem(icon: ImageIcon(AssetImage('assets/images/chat_room.png')), label: 'Chat'),
-            BottomNavigationBarItem(icon: ImageIcon(AssetImage('assets/images/user.png')), label: 'Profil'),
-          ],
         ),
       ),
     );
