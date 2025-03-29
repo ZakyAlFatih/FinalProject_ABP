@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:finpro_abpx/app/modules/navbar/views/navbar_view.dart';
 
 class LoginController extends GetxController {
   // Reactive variable for password visibility
@@ -31,6 +32,7 @@ class LoginController extends GetxController {
   // Method to handle login (placeholder)
   void login() {
     // Add your login logic here (e.g., API call)
+    Get.offAll(const NavbarView());
     print(
         'Logging in with email: ${email.value} and password: ${password.value}');
     // Example: Show a snackbar
