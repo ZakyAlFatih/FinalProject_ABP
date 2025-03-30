@@ -1,0 +1,2 @@
+C:/VSC/Test_libnya/tubes_abp/android/app/.cxx/Debug/503x2p4s/x86/CMakeFiles/edit_cache.dir
+C:/VSC/Test_libnya/tubes_abp/android/app/.cxx/Debug/503x2p4s/x86/CMakeFiles/rebuild_cache.dir
