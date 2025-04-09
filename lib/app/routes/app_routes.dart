@@ -9,6 +9,8 @@ abstract class Routes {
   static const NAVBAR = _Paths.NAVBAR;
   static const CHAT = _Paths.CHAT;
   static const HISTORY = _Paths.HISTORY;
+  static const PROFILE = _Paths.PROFILE;
+  static const COUNSELOR = _Paths.COUNSELOR;
 }
 
 abstract class _Paths {
@@ -19,4 +21,6 @@ abstract class _Paths {
   static const NAVBAR = '/navbar';
   static const CHAT = '/chat';
   static const HISTORY = '/history';
+  static const PROFILE = '/profile';
+  static const COUNSELOR = '/counselor';
 }
