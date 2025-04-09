@@ -1,57 +1,54 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart'; // <--- Tambahin ini
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:finpro_abpx/app/modules/navbar/views/navbar_view.dart';
+import 'package:finpro_abpx/app/routes/app_pages.dart';
 
 class LoginController extends GetxController {
-  // Reactive variable for password visibility
   var isPasswordHidden = true.obs;
 
-  // Reactive variables for email and password (to store input)
-  var email = ''.obs;
-  var password = ''.obs;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  // Method to toggle password visibility
   void togglePasswordVisibility() {
     isPasswordHidden.value = !isPasswordHidden.value;
   }
 
-  // Method to handle login (placeholder)
-  void login() {
-    // Add your login logic here (e.g., API call)
-    Get.offAll(const NavbarView());
-    print(
-        'Logging in with email: ${email.value} and password: ${password.value}');
-    // Example: Show a snackbar
-    Get.snackbar('Login', 'Login button pressed!');
+  void login() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    print("Email: $email"); // DEBUG
+    print("Password: $password"); // DEBUG
+
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      Get.snackbar("Login", "Welcome back!");
+      Get.offAllNamed(Routes.NAVBAR); // ✅ ini benar
+    } on FirebaseAuthException catch (e) {
+      print("FirebaseAuthException: ${e.message}");
+      Get.snackbar("Login Error", e.message ?? "Login failed");
+    } catch (e) {
+      print("Generic Error: $e");
+      Get.snackbar("Error", "An error occurred");
+    }
   }
 
-  // Methods for social media login (placeholders)
   void googleLogin() {
-    print('Logging in with Google');
-    Get.snackbar('Google Login', 'Google login pressed!');
+    Get.snackbar("Google Login", "Google login not implemented yet.");
   }
 
   void appleLogin() {
-    print('Logging in with Apple');
-    Get.snackbar('Apple Login', 'Apple login pressed!');
+    Get.snackbar("Apple Login", "Apple login not implemented yet.");
   }
 
   void facebookLogin() {
-    print('Logging in with Facebook');
-    Get.snackbar('Facebook Login', 'Facebook login pressed!');
+    Get.snackbar("Facebook Login", "Facebook login not implemented yet.");
   }
 }
