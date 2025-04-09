@@ -28,7 +28,8 @@ Widget buildHorizontalCounselorList(List<dynamic> counselors) {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
-                  counselor["image"] ?? 'assets/images/gasKonsul_logo.png', // Placeholder image
+                  counselor["image"] ??
+                      'assets/images/gasKonsul_logo.png', // Placeholder image
                   fit: BoxFit.cover,
                   width: 80,
                   height: 80,
@@ -105,7 +106,7 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             SizedBox(width: 30),
-            
+
             // Search Bar
             Expanded(
               child: Container(
@@ -123,14 +124,17 @@ class HomeView extends GetView<HomeController> {
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Cari', // Placeholder text
-                    suffixIcon: Icon(Icons.search, color: Colors.grey), // Search icon on the right
+                    suffixIcon: Icon(Icons.search,
+                        color: Colors.grey), // Search icon on the right
                     filled: true,
                     fillColor: Colors.white, // White background for input field
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0), // Rounded corners
+                      borderRadius:
+                          BorderRadius.circular(30.0), // Rounded corners
                       borderSide: BorderSide.none, // No border line
                     ),
-                    contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Adjust padding
+                    contentPadding: EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 16.0), // Adjust padding
                   ),
                 ),
               ),
@@ -149,19 +153,22 @@ class HomeView extends GetView<HomeController> {
                     color: Colors.blue.shade100, // Background color
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30), // Rounded top left corner
-                      bottomLeft: Radius.circular(30), // Rounded bottom left corner
+                      bottomLeft:
+                          Radius.circular(30), // Rounded bottom left corner
                       topRight: Radius.zero, // Straight edge at the top right
-                      bottomRight: Radius.zero, // Straight edge at the bottom right
+                      bottomRight:
+                          Radius.zero, // Straight edge at the bottom right
                     ), // Creates the "half rectangle" effect extending to the right
                   ),
                 ),
                 Positioned(
-                  left: 10,
-                  // Circular Profile Image
-                  child: CircleAvatar(
-                  radius: 20, // Radius of the circular profile image
-                  backgroundImage: AssetImage('assets/images/gasKonsul_logo.png'), // Replace with your image asset
-                )),
+                    left: 10,
+                    // Circular Profile Image
+                    child: CircleAvatar(
+                      radius: 20, // Radius of the circular profile image
+                      backgroundImage: AssetImage(
+                          'assets/images/gasKonsul_logo.png'), // Replace with your image asset
+                    )),
               ],
             ),
           ],
@@ -206,18 +213,22 @@ class HomeView extends GetView<HomeController> {
                     SizedBox(height: 8.0),
                     TextField(
                       maxLines: 1,
-                      onChanged: (value) => controller.updateCerita(value), // Updates "cerita"
+                      onChanged: (value) =>
+                          controller.updateCerita(value), // Updates "cerita"
                       decoration: InputDecoration(
                         hintText: 'Cerita',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0), // Rounded corners
+                          borderRadius:
+                              BorderRadius.circular(20.0), // Rounded corners
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20.0),
-                          borderSide: BorderSide(color: Colors.white, width: 2.0),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 2.0),
                         ),
                         filled: true,
-                        fillColor: Colors.white, // Sets the background color to white
+                        fillColor:
+                            Colors.white, // Sets the background color to white
                       ),
                     ),
                   ],
@@ -232,24 +243,30 @@ class HomeView extends GetView<HomeController> {
               ),
               SizedBox(height: 8),
               Obx(() => SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: controller.categories.map((category) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: ElevatedButton(
-                        onPressed: () => controller.selectCategory(category["category"] as String), // Use category name
-                        child: Text(category["category"] as String), // Display category name
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: controller.selectedCategory.value == category["category"]
-                              ? Colors.blue
-                              : Colors.grey, // Highlight the selected category
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              )),
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: controller.categories.map((category) {
+                        return Container(
+                          margin: EdgeInsets.symmetric(horizontal: 8.0),
+                          child: ElevatedButton(
+                            onPressed: () => controller.selectCategory(
+                                category["category"]
+                                    as String), // Use category name
+                            child: Text(category["category"]
+                                as String), // Display category name
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: controller
+                                          .selectedCategory.value ==
+                                      category["category"]
+                                  ? Colors.blue
+                                  : Colors
+                                      .grey, // Highlight the selected category
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  )),
               SizedBox(height: 16),
 
               // Vertical Scrolling: Categories
@@ -266,14 +283,13 @@ class HomeView extends GetView<HomeController> {
                         ),
                       );
                     }
-                    return Column(
-                      children: [
-                        SizedBox(      
-                          height: 190, // Set height for horizontal scrolling
-                          child: buildHorizontalCounselorList(controller.filteredCounselors),
-                        ),
-                      ]
-                    );
+                    return Column(children: [
+                      SizedBox(
+                        height: 190, // Set height for horizontal scrolling
+                        child: buildHorizontalCounselorList(
+                            controller.filteredCounselors),
+                      ),
+                    ]);
                   } else {
                     // Unfiltered Display: Show all categories vertically, counselors horizontally
                     return ListView.builder(
@@ -285,9 +301,11 @@ class HomeView extends GetView<HomeController> {
                           children: [
                             // Category Title
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 16.0),
                               child: Text(
-                                category["category"]?.toString() ?? "Unknown", // Category name
+                                category["category"]?.toString() ??
+                                    "Unknown", // Category name
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -297,9 +315,12 @@ class HomeView extends GetView<HomeController> {
                             ),
                             // Horizontal Scrolling Counselors
                             SizedBox(
-                              height: 190, // Set height for horizontal scrolling
-                              child: buildHorizontalCounselorList(category["counselors"] as List? ?? []),
-                            ),
+                                height:
+                                    190, // Set height for horizontal scrolling
+                                child: buildHorizontalCounselorList(
+                                    (category["counselors"]
+                                            as List<dynamic>?) ??
+                                        [])),
                           ],
                         );
                       },

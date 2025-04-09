@@ -42,25 +42,26 @@ class LoginView extends GetView<LoginController> {
                     const SizedBox(height: 20),
                     // Email Input
                     TextField(
+                      controller: controller.emailController,
                       decoration: InputDecoration(
                         labelText: "Email Address",
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
                       keyboardType: TextInputType.emailAddress,
-                      onChanged: (value) {
-                        controller.email.value = value;
-                      },
                     ),
+
                     const SizedBox(height: 15),
                     // Password Input
                     Obx(
                       () => TextField(
+                        controller: controller.passwordController,
                         obscureText: controller.isPasswordHidden.value,
                         decoration: InputDecoration(
                           labelText: "Password",
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(controller.isPasswordHidden.value
                                 ? Icons.visibility_off
@@ -70,21 +71,19 @@ class LoginView extends GetView<LoginController> {
                             },
                           ),
                         ),
-                        onChanged: (value) {
-                          controller.password.value = value;
-                        },
                       ),
                     ),
+
                     const SizedBox(height: 10),
                     // Forgot Password
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          Get.snackbar(
-                              'Forgot Password', 'Forgot password pressed!');
+                          Get.toNamed(
+                              '/register'); // atau Routes.REGISTER kalau pakai routes auto-generated
                         },
-                        child: const Text("Forgot password?",
+                        child: const Text("Sign Up",
                             style: TextStyle(color: Colors.blue)),
                       ),
                     ),

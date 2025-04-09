@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "155861557645",
+    "project_id": "abpx-672e5",
+    "storage_bucket": "abpx-672e5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:155861557645:android:51791adbc8ea2331a95dc4",
+        "android_client_info": {
+          "package_name": "flaykaz.finpro_abpx"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWFHOHpnWHn6LQ8hcfo8qJr1Ug5Rscs7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
