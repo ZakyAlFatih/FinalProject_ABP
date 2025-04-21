@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:flutter/material.dart'; // <--- Tambahin ini
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:finpro_abpx/app/modules/navbar/views/navbar_view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finpro_abpx/app/routes/app_pages.dart';
 
 class LoginController extends GetxController {
@@ -11,6 +11,7 @@ class LoginController extends GetxController {
   final passwordController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   void togglePasswordVisibility() {
     isPasswordHidden.value = !isPasswordHidden.value;
@@ -20,23 +21,32 @@ class LoginController extends GetxController {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
-    print("Email: $email"); // DEBUG
-    print("Password: $password"); // DEBUG
-
     try {
-      await _auth.signInWithEmailAndPassword(
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
+      String uid = userCredential.user!.uid;
+
+      // Cek apakah user ini counselor
+      DocumentSnapshot counselorDoc =
+          await _firestore.collection('counselors').doc(uid).get();
+
+      if (counselorDoc.exists) {
+        // Jika counselor, arahkan ke chat_counselor_view
+        Get.offAllNamed(
+            Routes.NAVBAR_COUNSELOR); // Pastikan ini sudah ada di routes
+      } else {
+        // Jika user biasa, arahkan ke NAVBAR
+        Get.offAllNamed(Routes.NAVBAR);
+      }
+
       Get.snackbar("Login", "Welcome back!");
-      Get.offAllNamed(Routes.NAVBAR); // ✅ ini benar
     } on FirebaseAuthException catch (e) {
-      print("FirebaseAuthException: ${e.message}");
       Get.snackbar("Login Error", e.message ?? "Login failed");
     } catch (e) {
-      print("Generic Error: $e");
-      Get.snackbar("Error", "An error occurred");
+      Get.snackbar("Error", "An unexpected error occurred");
     }
   }
 

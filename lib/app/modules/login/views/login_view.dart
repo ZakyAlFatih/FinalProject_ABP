@@ -108,16 +108,18 @@ class LoginView extends GetView<LoginController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("No Account?"),
                         TextButton(
                           onPressed: () {
-                            Get.snackbar('Sign Up', 'Sign Up pressed!');
+                            Get.toNamed('/register-counselor');
                           },
-                          child: const Text("Sign Up",
-                              style: TextStyle(color: Colors.blue)),
+                          child: const Text(
+                            "Sign Up as Counselor",
+                            style: TextStyle(color: Colors.blue),
+                          ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 20),
                     // "Or continue with" with Divider
                     Row(
