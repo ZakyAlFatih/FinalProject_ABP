@@ -11,6 +11,10 @@ abstract class Routes {
   static const HISTORY = _Paths.HISTORY;
   static const PROFILE = _Paths.PROFILE;
   static const COUNSELOR = _Paths.COUNSELOR;
+  static const CHAT_COUNSELOR = _Paths.CHAT_COUNSELOR;
+  static const REGISTER_COUNSELOR = _Paths.REGISTER_COUNSELOR;
+  static const NAVBAR_COUNSELOR = _Paths.NAVBAR_COUNSELOR;
+  static const PROFILE_COUNSELOR = _Paths.PROFILE_COUNSELOR;
 }
 
 abstract class _Paths {
@@ -23,4 +27,8 @@ abstract class _Paths {
   static const HISTORY = '/history';
   static const PROFILE = '/profile';
   static const COUNSELOR = '/counselor';
+  static const CHAT_COUNSELOR = '/chat-counselor';
+  static const REGISTER_COUNSELOR = '/register-counselor';
+  static const NAVBAR_COUNSELOR = '/navbar-counselor';
+  static const PROFILE_COUNSELOR = '/profile-counselor';
 }
