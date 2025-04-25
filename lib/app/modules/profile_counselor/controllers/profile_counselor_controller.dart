@@ -23,7 +23,14 @@ class ProfileCounselorController extends GetxController {
       DocumentSnapshot userDoc = await _firestore.collection('counselors').doc(uid).get();
       if (userDoc.exists) {
         userData.value = userDoc.data() as Map<String, dynamic>;
+
+        // Check for 'about' field and set default value if it doesn't exist
+        if (!userData.containsKey('about') || userData['about'] == null) {
+          userData['about'] = 'No Description';
+        }
+
         print('User data fetched successfully.');
+        print('About: ${userData['about']}'); // Debugging the new field
       } else {
         print('No user found for the given UID.');
         userData.value = {};
@@ -41,6 +48,7 @@ class ProfileCounselorController extends GetxController {
     required String phone,
     required String email,
     required Map<String, dynamic> availability, // Include availability
+    required String about, // Include about field
   }) async {
     try {
       String uid = _auth.currentUser!.uid;
@@ -55,14 +63,14 @@ class ProfileCounselorController extends GetxController {
         'availability_time2': availability['time2'] ?? 'Unknown Time',
         'availability_day3': availability['day3'] ?? 'Unknown',
         'availability_time3': availability['time3'] ?? 'Unknown Time',
+        'about': about.isNotEmpty ? about : 'No Description', // Set default for 'about'
       };
 
       await _firestore.collection('counselors').doc(uid).update(updatedData);
-      userData.value = updatedData; // Merge updated data with current user data
-      ;
+      userData.value = updatedData; // Update the local data
+      print('About updated successfully: $about'); // Debugging the updated field
       Get.snackbar('Success', 'Profile updated successfully!');
     } catch (e) {
-      print('Error updating profile in Firestore: $e');
       Get.snackbar('Error', 'Failed to update profile: $e');
     }
   }
@@ -89,6 +97,7 @@ class ProfileCounselorController extends GetxController {
     String? password,
     String? confirmPassword,
     required Map<String, dynamic> availability, // Add availability parameter
+    required String about, // Add about field
   }) async {
     try {
       // Update Firestore profile details
@@ -98,6 +107,7 @@ class ProfileCounselorController extends GetxController {
         phone: phone,
         email: email,
         availability: availability,
+        about: about,
       );
 
       // Validate and securely update password
