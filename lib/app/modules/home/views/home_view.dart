@@ -167,7 +167,7 @@ class HomeView extends GetView<HomeController> {
                     child: CircleAvatar(
                       radius: 20, // Radius of the circular profile image
                       backgroundImage: AssetImage(
-                          'assets/images/gasKonsul_logo.png'), // Replace with your image asset
+                          'assets/images/gasKonsul_logo.png'),
                     )),
               ],
             ),
