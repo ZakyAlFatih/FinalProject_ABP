@@ -40,6 +40,7 @@ class RegisterCounselorController extends GetxController {
 
       // Simpan data tambahan ke Firestore
       await FirebaseFirestore.instance.collection('counselors').doc(uid).set({
+        'uid': userCredential.user!.uid,
         'name': name.value.trim(),
         'email': email.value.trim(),
         'bidang': bidang.value.trim(),

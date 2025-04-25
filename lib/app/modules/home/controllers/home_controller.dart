@@ -41,6 +41,7 @@ class HomeController extends GetxController {
     for (var doc in querySnapshot.docs) {
       final data = doc.data() as Map<String, dynamic>;
       final bidang = data['bidang'] ?? 'Unknown Bidang'; // Fallback for missing bidang
+      final uid = data['uid'] ?? 'Unknown UID'; // Access the `uid` field explicitly
 
       if (!groupedByBidang.containsKey(bidang)) {
         groupedByBidang[bidang] = []; // Initialize the list for this bidang
@@ -73,6 +74,7 @@ class HomeController extends GetxController {
 
       // Add counselor with explicit separation of days and times
       groupedByBidang[bidang].add({
+        "uid": uid, // Add the uid field from Firestore 
         "name": data['name'] ?? 'Unknown',
         "availability": {
           "day1": availabilityDay1,
@@ -85,8 +87,9 @@ class HomeController extends GetxController {
         "image": data['image'] ?? 'assets/images/gasKonsul_logo.png', // Default placeholder
         "email": data['email'] ?? 'No Email',
       });
+      print('Counselor UID: $uid'); // Print the UID to the console
     }
-
+    
     // Transform grouped map into the expected list structure
     categories.value = groupedByBidang.entries.map((entry) {
       return {

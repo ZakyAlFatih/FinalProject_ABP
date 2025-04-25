@@ -1,3 +1,4 @@
+import 'package:finpro_abpx/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -68,13 +69,10 @@ Widget buildHorizontalCounselorList(List<dynamic> counselors) {
                 alignment: Alignment.bottomRight,
                 child: TextButton(
                   onPressed: () {
-                    Get.snackbar(
-                      'Selengkapnya Pressed',
-                      '${counselor["name"] ?? "Unknown"}\'s Selengkapnya was pressed!',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.blue.shade100,
-                      colorText: Colors.black,
-                      duration: Duration(seconds: 2),
+                    // Navigate to CounselorView using a named route, passing only the counselor ID
+                    Get.toNamed(
+                      Routes.COUNSELOR,
+                      arguments: {'id': counselor["uid"]}, // Passing the ID
                     );
                   },
                   child: Text(
