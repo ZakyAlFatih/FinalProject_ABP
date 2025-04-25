@@ -7,26 +7,28 @@ class CounselorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final counselorId = Get.arguments['id'] ?? 'Unknown'; // Retrieve the counselor ID
+    final counselorUid = Get.arguments['id'] ?? 'Unknown'; // Retrieve the counselor UID
     final controller = Get.put(CounselorController());
 
-    // Fetch counselor data using the ID
-    controller.fetchCounselorData(counselorId);
+    // Fetch counselor data and schedules using the UID
+    controller.fetchCounselorData(counselorUid);
+    controller.fetchSchedules(counselorUid);
 
     return Obx(() {
       return controller.showRatingPage.value
           ? RatingWidget(
               counselorName: controller.counselorData['name'] ?? 'Counselor',
             )
-          : CounselorProfileWidget(controller: controller);
+          : CounselorProfileWidget(controller: controller, counselorUid: counselorUid);
     });
   }
 }
 
 class CounselorProfileWidget extends StatelessWidget {
   final CounselorController controller;
+  final String counselorUid;
 
-  const CounselorProfileWidget({super.key, required this.controller});
+  const CounselorProfileWidget({super.key, required this.controller, required this.counselorUid});
 
   @override
   Widget build(BuildContext context) {
@@ -59,77 +61,17 @@ class CounselorProfileWidget extends StatelessWidget {
               );
             }
 
-            // Extract availability data
-            String availDay1 = controller.counselorData['availability_day1'] ?? 'Unknown';
-            String availTime1 = controller.counselorData['availability_time1'] ?? 'Unknown Time';
-            String availDay2 = controller.counselorData['availability_day2'] ?? 'Unknown';
-            String availTime2 = controller.counselorData['availability_time2'] ?? 'Unknown Time';
-            String availDay3 = controller.counselorData['availability_day3'] ?? 'Unknown';
-            String availTime3 = controller.counselorData['availability_time3'] ?? 'Unknown Time';
-
-            // Determine schedule section content
-            Widget scheduleSection;
-            if (availDay1 == '' || availDay1 == 'Unknown') {
-              scheduleSection = const Center(
-                child: Text(
-                  'Tidak ada jadwal yang disediakan, silahkan cari konselor lain.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
-                ),
+            // Generate schedule buttons dynamically
+            List<Widget> scheduleButtons = controller.schedules.map((schedule) {
+              return _buildScheduleBox(
+                schedule['day'],
+                schedule['time'],
+                isActive: !(schedule['isBooked'] as bool? ?? false),
+                onTap: () {
+                  controller.selectedScheduleId.value = schedule['id'];
+                },
               );
-            } else if (availDay2 == '' || availDay2 == 'Unknown') {
-              scheduleSection = Center(
-                child: _buildScheduleBox(
-                  availDay1,
-                  availTime1,
-                  isActive: true,
-                ),
-              );
-            } else if (availDay3 == '' || availDay3 == 'Unknown') {
-              scheduleSection = Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildScheduleBox(
-                      availDay1,
-                      availTime1,
-                      isActive: true,
-                    ),
-                    const SizedBox(width: 10),
-                    _buildScheduleBox(
-                      availDay2,
-                      availTime2,
-                      isActive: false,
-                    ),
-                  ],
-                ),
-              );
-            } else {
-              scheduleSection = Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildScheduleBox(
-                      availDay1,
-                      availTime1,
-                      isActive: true,
-                    ),
-                    const SizedBox(width: 10),
-                    _buildScheduleBox(
-                      availDay2,
-                      availTime2,
-                      isActive: false,
-                    ),
-                    const SizedBox(width: 10),
-                    _buildScheduleBox(
-                      availDay3,
-                      availTime3,
-                      isActive: false,
-                    ),
-                  ],
-                ),
-              );
-            }
+            }).toList();
 
             return Column(
               children: [
@@ -149,8 +91,7 @@ class CounselorProfileWidget extends StatelessWidget {
                       CircleAvatar(
                         radius: 80,
                         backgroundImage: NetworkImage(
-                          controller.counselorData['avatar'] ??
-                              'https://via.placeholder.com/150',
+                          controller.counselorData['avatar'] ?? 'https://via.placeholder.com/150',
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -173,56 +114,30 @@ class CounselorProfileWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Rating Section
-                      const Text(
-                        'Rating',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF2897FF),
-                        ),
-                      ),
+                      const Text('Rating', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2897FF))),
                       Row(
                         children: List.generate(
                           controller.counselorData['rating'] ?? 0,
-                          (index) =>
-                              const Icon(Icons.star, color: Colors.blue, size: 30),
+                          (index) => const Icon(Icons.star, color: Colors.blue, size: 30),
                         ),
                       ),
                       const Divider(color: Colors.blue),
                       const SizedBox(height: 10),
 
-                      // About Section
-                      const Text(
-                        'About',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF2897FF),
-                        ),
-                      ),
-                      Text(
-                        controller.counselorData['about'] ??
-                            'No description available.',
-                        style: const TextStyle(fontSize: 18.5, color: Colors.black54),
-                      ),
+                      const Text('About', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2897FF))),
+                      Text(controller.counselorData['about'] ?? 'No description available.', style: const TextStyle(fontSize: 18.5, color: Colors.black54)),
                       const Divider(color: Colors.blue),
                       const SizedBox(height: 15),
 
-                      // Schedule Section
-                      const Text(
-                        'Jadwal',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF2897FF),
-                        ),
+                      const Text('Jadwal', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2897FF))),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: scheduleButtons,
                       ),
-                      scheduleSection,
                       const Divider(color: Colors.blue),
                       const SizedBox(height: 20),
 
-                      // Booking Button
                       Center(
                         child: SizedBox(
                           width: 120,
@@ -235,20 +150,18 @@ class CounselorProfileWidget extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
-                              print('Booking button clicked');
+                              if (controller.selectedScheduleId.value.isNotEmpty) {
+                                controller.bookSchedule(controller.selectedScheduleId.value, counselorUid);
+                              }
                             },
-                            child: const Text('Booking',
-                                style: TextStyle(color: Colors.white)),
+                            child: const Text('Booking', style: TextStyle(color: Colors.white)),
                           ),
                         ),
                       ),
                       const SizedBox(height: 10),
                       TextButton(
                         onPressed: controller.toggleView,
-                        child: const Text(
-                          'Testing', // Button to switch to rating view
-                          style: TextStyle(color: Colors.blue),
-                        ),
+                        child: const Text('Testing', style: TextStyle(color: Colors.blue)),
                       )
                     ],
                   ),
@@ -261,41 +174,26 @@ class CounselorProfileWidget extends StatelessWidget {
     );
   }
 
-  static Widget _buildScheduleBox(String day, String time,
-      {bool isActive = true}) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: isActive ? Colors.blue : const Color(0xFFE8F1FF),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: isActive ? Colors.blue : Colors.blue,
-          width: isActive ? 0 : 2,
+  static Widget _buildScheduleBox(String day, String time, {bool isActive = true, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: isActive ? onTap : null, // Tap interaction
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.blue : const Color(0xFFE8F1FF),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: isActive ? Colors.blue : Colors.blue, width: isActive ? 0 : 2),
         ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            day,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: isActive ? Colors.white : Colors.blue,
-            ),
-          ),
-          Text(
-            time,
-            style: TextStyle(
-              fontSize: 12,
-              color: isActive ? Colors.white : Colors.blue,
-            ),
-          ),
-        ],
+        child: Column(
+          children: [
+            Text(day, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isActive ? Colors.white : Colors.blue)),
+            Text(time, style: TextStyle(fontSize: 12, color: isActive ? Colors.white : Colors.blue)),
+          ],
+        ),
       ),
     );
   }
 }
-
 class RatingWidget extends StatelessWidget {
   final String counselorName;
 
