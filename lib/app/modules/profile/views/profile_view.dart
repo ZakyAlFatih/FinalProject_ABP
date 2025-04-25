@@ -35,100 +35,153 @@ class ProfileView extends GetView<ProfileController> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(45),
-                    bottomRight: Radius.circular(45),
+          child: Obx(
+            () {
+              // if (controller.userData.isEmpty) {
+              //   // Tampilkan loading saat data belum siap
+              //   return const Center(
+              //     child: CircularProgressIndicator(),
+              //   );
+              // }
+
+              return Column(
+                children: [
+                  // Header Profil
+                  Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(45),
+                        bottomRight: Radius.circular(45),
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 45),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 80,
+                          backgroundImage: controller.userData['avatar'] != null &&
+                                  controller.userData['avatar'] != ''
+                              ? NetworkImage(controller.userData['avatar'])
+                              : const AssetImage('assets/profile_picture.png')
+                                  as ImageProvider,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          controller.userData['name'] ?? 'Nama Tidak Tersedia',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 45),
-                child: Column(
-                  children: const [
-                    CircleAvatar(
-                      radius: 80,
-                      backgroundImage: AssetImage('assets/profile_picture.png'),
-                    ),
-                    SizedBox(height: 10),
-                    Text('Name',
-                        style: TextStyle(fontSize: 20, color: Colors.white)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Email', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
-                    const TextField(
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        hintText: 'email',
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.blue),
+
+                  const SizedBox(height: 40),
+
+                  // Detail Profil
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Email',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    const Text('Phone', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
-                    const TextField(
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        hintText: '+62 XXXXXXXXXX',
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.blue),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    Center(
-                      child: SizedBox(
-                        width: 130,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        TextField(
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            hintText: controller.userData['email'] ??
+                                'Email Tidak Tersedia',
+                            border: const UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue),
                             ),
                           ),
-                          onPressed: () {
-                            controller.isEditing.value = true;
-                          },
-                          child: const Text('Edit Profil', style: TextStyle(color: Colors.white)),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Center(
-                      child: SizedBox(
-                        width: 130,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+
+                        const SizedBox(height: 30),
+
+                        const Text(
+                          'Phone',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        TextField(
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            hintText: controller.userData['phone'] ??
+                                '+62 XXXXXXXXXX',
+                            border: const UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue),
                             ),
                           ),
-                          onPressed: () {
-                            controller.logout();
-                          },
-                          child: const Text('Log Out', style: TextStyle(color: Colors.white)),
                         ),
-                      ),
+
+                        const SizedBox(height: 40),
+
+                        // Tombol Edit Profil
+                        Center(
+                          child: SizedBox(
+                            width: 130,
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {
+                                controller.isEditing.value = true;
+                              },
+                              child: const Text(
+                                'Edit Profil',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        // Tombol Log Out
+                        Center(
+                          child: SizedBox(
+                            width: 130,
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {
+                                controller.logout(); // Fungsi logout di Controller
+                              },
+                              child: const Text(
+                                'Log Out',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
+              );
+            },
           ),
         ),
       ),
