@@ -161,22 +161,31 @@ class HomeView extends GetView<HomeController> {
                     color: Colors.blue.shade100, // Background color
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30), // Rounded top left corner
-                      bottomLeft:
-                          Radius.circular(30), // Rounded bottom left corner
+                      bottomLeft: Radius.circular(30), // Rounded bottom left corner
                       topRight: Radius.zero, // Straight edge at the top right
-                      bottomRight:
-                          Radius.zero, // Straight edge at the bottom right
+                      bottomRight: Radius.zero, // Straight edge at the bottom right
                     ), // Creates the "half rectangle" effect extending to the right
                   ),
                 ),
                 Positioned(
-                    left: 10,
-                    // Circular Profile Image
+                  left: 10,
+                  // Circular Profile Image wrapped in GestureDetector
+                  child: GestureDetector(
+                    onTap: () {
+                      // Navigate to a route when tapped
+                      Get.offAllNamed(
+                        Routes.NAVBAR, // Navigate to navbar
+                        arguments: {'navigateTo': 'profile'}, // Pass a flag indicating the destination
+                      );
+                    },
                     child: CircleAvatar(
                       radius: 20, // Radius of the circular profile image
                       backgroundImage: AssetImage(
-                          'assets/images/gasKonsul_logo.png'),
-                    )),
+                        'assets/images/gasKonsul_logo.png',
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ],
