@@ -9,7 +9,7 @@ class ProfileView extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     return Obx(
       () => controller.isEditing.value
-          ? _buildEditProfile(context)
+          ? _buildEditProfile(context, controller)
           : _buildProfile(context),
     );
   }
@@ -37,13 +37,12 @@ class ProfileView extends GetView<ProfileController> {
         child: SingleChildScrollView(
           child: Obx(
             () {
-              // if (controller.userData.isEmpty) {
-              //   // Tampilkan loading saat data belum siap
-              //   return const Center(
-              //     child: CircularProgressIndicator(),
-              //   );
-              // }
-
+              if (controller.userData.isEmpty) {
+                // Tampilkan loading saat data belum siap
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
               return Column(
                 children: [
                   // Header Profil
@@ -60,12 +59,9 @@ class ProfileView extends GetView<ProfileController> {
                     child: Column(
                       children: [
                         CircleAvatar(
-                          radius: 80,
-                          backgroundImage: controller.userData['avatar'] != null &&
-                                  controller.userData['avatar'] != ''
-                              ? NetworkImage(controller.userData['avatar'])
-                              : const AssetImage('assets/profile_picture.png')
-                                  as ImageProvider,
+                          radius: 50,
+                          backgroundImage: NetworkImage(
+                              controller.userData['avatar'] ?? 'https://via.placeholder.com/50'),
                         ),
                         const SizedBox(height: 10),
                         Text(
@@ -188,7 +184,13 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  Widget _buildEditProfile(BuildContext context) {
+  Widget _buildEditProfile(BuildContext context, ProfileController controller) {
+    // Controllers for input fields tied to observable data
+    final nameController = TextEditingController(text: controller.userData['name'] ?? '');
+    final phoneController = TextEditingController(text: controller.userData['phone'] ?? '');
+    final passwordController = TextEditingController(); // For password changes
+    final confirmPasswordController = TextEditingController(); // To confirm password
+
     return Scaffold(
       backgroundColor: const Color(0xFFE8F1FF),
       appBar: AppBar(
@@ -200,12 +202,13 @@ class ProfileView extends GetView<ProfileController> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => controller.isEditing.value = false,
+          onPressed: () => controller.exitEditMode(), // Explicitly exit edit mode
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Profile Picture Edit Section
             Container(
               width: double.infinity,
               decoration: const BoxDecoration(
@@ -220,16 +223,17 @@ class ProfileView extends GetView<ProfileController> {
                 children: [
                   Stack(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 80,
-                        backgroundImage: AssetImage('assets/profile_picture.png'),
+                        backgroundImage: NetworkImage(
+                            controller.userData['avatar'] ?? 'https://via.placeholder.com/150'),
                       ),
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: GestureDetector(
                           onTap: () {
-                            print("Edit foto profil diklik");
+                            print("Edit photo profile clicked");
                           },
                           child: Container(
                             decoration: const BoxDecoration(
@@ -247,20 +251,23 @@ class ProfileView extends GetView<ProfileController> {
               ),
             ),
             const SizedBox(height: 20),
+
+            // Input Fields Section
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildInputField(label: 'Nama', hint: 'nama'),
+                  _buildInputField(label: 'Nama', hint: 'nama', controller: nameController),
                   const SizedBox(height: 20),
-                  _buildInputField(label: 'Email', hint: 'email'),
-                  const SizedBox(height: 20),
-                  _buildInputField(label: 'Password', hint: 'password', obscure: true),
-                  _buildInputField(label: '', hint: 'confirm password', obscure: true, reduceGap: true),
+                  _buildInputField(label: 'Password', hint: 'password', obscure: true, controller: passwordController),
+                  _buildInputField(
+                      label: '', hint: 'confirm password', obscure: true, reduceGap: true, controller: confirmPasswordController),
                   const SizedBox(height: 30),
-                  _buildInputField(label: 'Phone', hint: '+62XXXXXXXXXX'),
+                  _buildInputField(label: 'Phone', hint: '+62XXXXXXXXXX', controller: phoneController),
                   const SizedBox(height: 35),
+
+                  // Save Button
                   Center(
                     child: SizedBox(
                       width: 130,
@@ -273,7 +280,18 @@ class ProfileView extends GetView<ProfileController> {
                           ),
                         ),
                         onPressed: () {
-                          controller.isEditing.value = false;
+                          if (passwordController.text == confirmPasswordController.text) {
+                            controller.updateFullProfile(
+                              photoUrl: controller.userData['avatar'] ?? '',
+                              name: nameController.text,
+                              phone: phoneController.text,
+                              email: controller.userData['email'],
+                              password: passwordController.text,
+                              confirmPassword: confirmPasswordController.text,
+                            );
+                          } else {
+                            Get.snackbar('Error', 'Passwords do not match!');
+                          }
                         },
                         child: const Text('Simpan', style: TextStyle(color: Colors.white)),
                       ),
@@ -291,6 +309,7 @@ class ProfileView extends GetView<ProfileController> {
   Widget _buildInputField({
     required String label,
     required String hint,
+    TextEditingController? controller, // Add this parameter for input control
     bool obscure = false,
     bool reduceGap = false,
   }) {
@@ -302,12 +321,16 @@ class ProfileView extends GetView<ProfileController> {
           if (label.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 3),
-              child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+              child: Text(
+                label,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+              ),
             ),
           SizedBox(
             width: double.infinity,
             height: 25,
             child: TextField(
+              controller: controller, // Use the controller here
               obscureText: obscure,
               decoration: InputDecoration(
                 hintText: hint,

@@ -121,25 +121,6 @@ class LoginView extends GetView<LoginController> {
                     ),
 
                     const SizedBox(height: 20),
-                    // "Or continue with" with Divider
-                    Row(
-                      children: const [
-                        Expanded(child: Divider()),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Text(
-                            "Or continue with",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        Expanded(child: Divider()),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
                   ],
                 ),
               ),
@@ -163,25 +144,6 @@ class LoginView extends GetView<LoginController> {
                         fit: BoxFit.cover, // Ensure image covers the area
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _socialButton("assets/images/google.png", Colors.red,
-                            () {
-                          controller.googleLogin();
-                        }),
-                        const SizedBox(width: 15),
-                        _socialButton("assets/images/apple.png", Colors.black,
-                            () {
-                          controller.appleLogin();
-                        }),
-                        const SizedBox(width: 15),
-                        _socialButton("assets/images/facebook.png", Colors.blue,
-                            () {
-                          controller.facebookLogin();
-                        }),
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -193,15 +155,15 @@ class LoginView extends GetView<LoginController> {
     );
   }
 
-  Widget _socialButton(
-      String imagePath, Color backgroundColor, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: CircleAvatar(
-        radius: 22,
-        backgroundColor: backgroundColor,
-        child: Image.asset(imagePath, width: 24, height: 24),
-      ),
-    );
-  }
+  // Widget _socialButton(
+  //     String imagePath, Color backgroundColor, VoidCallback onTap) {
+  //   return InkWell(
+  //     onTap: onTap,
+  //     child: CircleAvatar(
+  //       radius: 22,
+  //       backgroundColor: backgroundColor,
+  //       child: Image.asset(imagePath, width: 24, height: 24),
+  //     ),
+  //   );
+  // }
 }

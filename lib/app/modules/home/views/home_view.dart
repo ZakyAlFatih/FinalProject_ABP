@@ -15,7 +15,7 @@ Widget buildHorizontalCounselorList(List<dynamic> counselors) {
         elevation: 2,
         child: Container(
           height: 190,
-          width: 130, // Adjust card width
+          width: 160, // Adjust card width
           padding: EdgeInsets.all(8.0),
           decoration: BoxDecoration(
             color: Colors.blue.shade50, // Background color for the card
@@ -46,7 +46,17 @@ Widget buildHorizontalCounselorList(List<dynamic> counselors) {
               ),
               // Counselor's availability
               Text(
-                counselor["availability"] ?? "Unknown",
+                (() {
+                  // Dynamically decide what to display based on availability conditions
+                  if (counselor["availability"]["day1"] == "Unknown" || counselor["availability"]["day2"] == "Unknown") {
+                    return counselor["availability"]["day1"]; // Only show day1 if it's Unknown
+                  } else if (counselor["availability"]["day3"] == "Unknown") {
+                    return '${counselor["availability"]["day1"]}, ${counselor["availability"]["day2"]}'; // Show day1 and day2 when day3 is Unknown
+                  } else {
+                    // If none are Unknown, show all days
+                    return '${counselor["availability"]["day1"]}, ${counselor["availability"]["day2"]}, ${counselor["availability"]["day3"]}';
+                  }
+                })(),
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey,
