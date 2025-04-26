@@ -265,21 +265,27 @@ class ProfileCounselorView extends GetView<ProfileCounselorController> {
   }
 
   Widget _buildEditProfile(BuildContext context, ProfileCounselorController controller) {
-    // Controllers for input fields tied to observable data
     final nameController = TextEditingController(text: controller.userData['name'] ?? '');
     final phoneController = TextEditingController(text: controller.userData['phone'] ?? '');
-    final passwordController = TextEditingController(); // For password changes
-    final confirmPasswordController = TextEditingController(); // To confirm password
+    final passwordController = TextEditingController(); 
+    final confirmPasswordController = TextEditingController(); 
 
-    // Availability Controllers
+    // Availability Controllers with validation logic
     final day1Controller = TextEditingController(text: controller.userData['availability_day1'] ?? '');
     final time1Controller = TextEditingController(text: controller.userData['availability_time1'] ?? '');
-    final day2Controller = TextEditingController(text: controller.userData['availability_day2'] ?? '');
-    final time2Controller = TextEditingController(text: controller.userData['availability_time2'] ?? '');
-    final day3Controller = TextEditingController(text: controller.userData['availability_day3'] ?? '');
-    final time3Controller = TextEditingController(text: controller.userData['availability_time3'] ?? '');
+    final day2Controller = TextEditingController(
+        text: controller.userData['availability_day2'] ?? '',
+    );
+    final time2Controller = TextEditingController(
+        text: controller.userData['availability_time2'] ?? '',
+    );
+    final day3Controller = TextEditingController(
+        text: controller.userData['availability_day3'] ?? '',
+    );
+    final time3Controller = TextEditingController(
+        text: controller.userData['availability_time3'] ?? '',
+    );
 
-    // About Controller
     final aboutController = TextEditingController(text: controller.userData['about'] ?? 'No Description');
 
     return Scaffold(
@@ -293,144 +299,111 @@ class ProfileCounselorView extends GetView<ProfileCounselorController> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => controller.exitEditMode(), // Explicitly exit edit mode
+          onPressed: () => controller.exitEditMode(), 
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Profile Picture Edit Section
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
-                ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInputField(label: 'Nama', hint: 'Nama', controller: nameController),
+              const SizedBox(height: 20),
+
+              _buildInputField(
+                label: 'About',
+                hint: 'Write something about yourself...',
+                controller: aboutController,
+                maxLines: 3,
               ),
-              padding: const EdgeInsets.symmetric(vertical: 35),
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 80,
-                        backgroundImage: NetworkImage(
-                            controller.userData['avatar'] ?? 'https://via.placeholder.com/150'),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            print("Edit photo profile clicked");
-                            // Implement photo upload logic
-                          },
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFF006FFD),
-                            ),
-                            padding: const EdgeInsets.all(10),
-                            child: const Icon(Icons.edit, color: Colors.white, size: 20),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              const SizedBox(height: 30),
+
+              _buildInputField(label: 'Phone', hint: '+62XXXXXXXXXX', controller: phoneController),
+              const SizedBox(height: 30),
+
+              _buildInputField(label: 'Password', hint: 'Password', obscure: true, controller: passwordController),
+              _buildInputField(
+                  label: '', hint: 'Confirm Password', obscure: true, reduceGap: true, controller: confirmPasswordController),
+              const SizedBox(height: 30),
+
+              // Availability with validation
+              _buildInputField(label: 'Availability - Day 1', hint: 'Day 1 (e.g., Mon)', controller: day1Controller),
+              _buildInputField(label: '', hint: 'Time 1 (e.g., 10:00-12:00)', reduceGap: true, controller: time1Controller),
+              const SizedBox(height: 20),
+
+              // Disable Day 2 if Day 1 is empty
+              _buildInputField(
+                label: 'Availability - Day 2',
+                hint: 'Day 2 (e.g., Tue)',
+                controller: day2Controller,
+                readOnly: day1Controller.text.isEmpty,
               ),
-            ),
-            const SizedBox(height: 20),
+              _buildInputField(
+                label: '',
+                hint: 'Time 2 (e.g., 14:00-16:00)',
+                reduceGap: true,
+                controller: time2Controller,
+                readOnly: day1Controller.text.isEmpty,
+              ),
+              const SizedBox(height: 20),
 
-            // Input Fields Section
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Editable Fields
-                  _buildInputField(label: 'Nama', hint: 'Nama', controller: nameController),
-                  const SizedBox(height: 20),
+              // Disable Day 3 if Day 2 is empty
+              _buildInputField(
+                label: 'Availability - Day 3',
+                hint: 'Day 3 (e.g., Fri)',
+                controller: day3Controller,
+                readOnly: day2Controller.text.isEmpty,
+              ),
+              _buildInputField(
+                label: '',
+                hint: 'Time 3 (e.g., 16:00-18:00)',
+                reduceGap: true,
+                controller: time3Controller,
+                readOnly: day2Controller.text.isEmpty,
+              ),
+              const SizedBox(height: 30),
 
-                  _buildInputField(
-                    label: 'About',
-                    hint: 'Write something about yourself...',
-                    controller: aboutController,
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 30),
-
-                  _buildInputField(label: 'Phone', hint: '+62XXXXXXXXXX', controller: phoneController),
-                  const SizedBox(height: 30),
-
-                  _buildInputField(label: 'Password', hint: 'Password', obscure: true, controller: passwordController),
-                  _buildInputField(
-                      label: '', hint: 'Confirm Password', obscure: true, reduceGap: true, controller: confirmPasswordController),
-                  const SizedBox(height: 30),
-
-                  // Availability for Day 1
-                  _buildInputField(label: 'Availability - Day 1', hint: 'Day 1 (e.g., Mon)', controller: day1Controller),
-                  _buildInputField(
-                      label: '', hint: 'Time 1 (e.g., 10:00-12:00)', reduceGap: true, controller: time1Controller),
-                  const SizedBox(height: 20),
-
-                  // Availability for Day 2
-                  _buildInputField(label: 'Availability - Day 2', hint: 'Day 2 (e.g., Tue)', controller: day2Controller),
-                  _buildInputField(
-                      label: '', hint: 'Time 2 (e.g., 14:00-16:00)', reduceGap: true, controller: time2Controller),
-                  const SizedBox(height: 20),
-
-                  // Availability for Day 3
-                  _buildInputField(label: 'Availability - Day 3', hint: 'Day 3 (e.g., Fri)', controller: day3Controller),
-                  _buildInputField(
-                      label: '', hint: 'Time 3 (e.g., 16:00-18:00)', reduceGap: true, controller: time3Controller),
-                  const SizedBox(height: 30),
-
-                  // Save Button
-                  Center(
-                    child: SizedBox(
-                      width: 130,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        onPressed: () {
-                          if (passwordController.text == confirmPasswordController.text) {
-                            controller.updateFullProfile(
-                              photoUrl: controller.userData['avatar'] ?? '',
-                              name: nameController.text,
-                              phone: phoneController.text,
-                              email: controller.userData['email'],
-                              password: passwordController.text,
-                              confirmPassword: confirmPasswordController.text,
-                              availability: {
-                                "day1": day1Controller.text,
-                                "time1": time1Controller.text,
-                                "day2": day2Controller.text,
-                                "time2": time2Controller.text,
-                                "day3": day3Controller.text,
-                                "time3": time3Controller.text,
-                              },
-                              about: aboutController.text,
-                            );
-                          } else {
-                            Get.snackbar('Error', 'Passwords do not match!');
-                          }
-                        },
-                        child: const Text('Simpan', style: TextStyle(color: Colors.white)),
+              Center(
+                child: SizedBox(
+                  width: 130,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
+                    onPressed: () {
+                      if (passwordController.text == confirmPasswordController.text) {
+                        controller.updateFullProfile(
+                          photoUrl: controller.userData['avatar'] ?? '',
+                          name: nameController.text,
+                          phone: phoneController.text,
+                          email: controller.userData['email'],
+                          password: passwordController.text,
+                          confirmPassword: confirmPasswordController.text,
+                          availability: {
+                            "day1": day1Controller.text,
+                            "time1": time1Controller.text,
+                            "day2": day1Controller.text.isNotEmpty ? day2Controller.text : '',
+                            "time2": day1Controller.text.isNotEmpty ? time2Controller.text : '',
+                            "day3": day2Controller.text.isNotEmpty ? day3Controller.text : '',
+                            "time3": day2Controller.text.isNotEmpty ? time3Controller.text : '',
+                          },
+                          about: aboutController.text,
+                        );
+                      } else {
+                        Get.snackbar('Error', 'Passwords do not match!');
+                      }
+                    },
+                    child: const Text('Simpan', style: TextStyle(color: Colors.white)),
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -443,7 +416,7 @@ class ProfileCounselorView extends GetView<ProfileCounselorController> {
     bool obscure = false,
     bool reduceGap = false,
     bool readOnly = false,
-    int maxLines = 1, // Default maxLines to 1
+    int maxLines = 1,
   }) {
     return Padding(
       padding: EdgeInsets.only(bottom: reduceGap ? 5 : 8),
@@ -462,7 +435,7 @@ class ProfileCounselorView extends GetView<ProfileCounselorController> {
             controller: controller,
             obscureText: obscure,
             readOnly: readOnly,
-            maxLines: maxLines, // Maximum lines for the field
+            maxLines: maxLines,
             decoration: InputDecoration(
               hintText: hint,
               filled: true,

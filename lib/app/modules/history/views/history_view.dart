@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
 import '../controllers/history_controller.dart';
 
-class HistoryView extends GetView<HistoryController> {
+class HistoryView extends StatefulWidget {
   const HistoryView({super.key});
+
+  @override
+  _HistoryViewState createState() => _HistoryViewState();
+}
+
+class _HistoryViewState extends State<HistoryView> {
+  final HistoryController controller = Get.find<HistoryController>();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchBookingHistory(); // Data di-refresh setiap kali widget diakses
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,9 +24,9 @@ class HistoryView extends GetView<HistoryController> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_sharp, color: Colors.blue.shade500), // Back arrow
+            icon: Icon(Icons.arrow_back_ios_new_sharp, color: Colors.blue.shade500),
             onPressed: () {
-              Get.back(); // Navigate back
+              Get.back();
             },
           ),
           title: Text(
@@ -30,57 +41,29 @@ class HistoryView extends GetView<HistoryController> {
           backgroundColor: Colors.blue.shade50,
           centerTitle: true,
           elevation: 0.0,
-          // For testing the data when there's order history or not using toogle (line 34 - 63)
-          actions: [
-            Obx(() {
-              return GestureDetector(
-                onTap: () {
-                  // Toggle the value of toogleTestHistory
-                  controller.toogleTestHistory.value = !controller.toogleTestHistory.value;
-                },
-                child: Container(
-                  width: 40.0,
-                  height: 40.0,
-                  decoration: BoxDecoration(
-                    color: controller.toogleTestHistory.value
-                        ? Colors.green.shade500 // Color when active
-                        : Colors.blue.shade500, // Color when inactive
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      controller.toogleTestHistory.value ? "ON" : "OFF",
-                      style: TextStyle(
-                        fontFamily: 'Arial Rounded MT Bold',
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ],
         ),
         body: Obx(() {
-          // Check if there's no data in orderedHistory
-          if (controller.orderedHistory.isEmpty || controller.toogleTestHistory.value) {
+          // Tampilkan indikator loading saat data di-fetch
+          if (controller.isFetching.value) {
+            return Center(child: CircularProgressIndicator(color: Colors.blue.shade500));
+          }
+
+          // Periksa apakah pengguna memiliki riwayat booking
+          if (controller.bookingHistory.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Show placeholder image
                   Image.asset(
-                    'assets/images/gasKonsul_logo.png', // Replace with your image path
+                    'assets/images/gasKonsul_logo.png',
                     width: 150.0,
                     height: 150.0,
                     fit: BoxFit.contain,
                   ),
                   SizedBox(height: 16.0),
-
-                  // Show placeholder text
                   Text(
                     "MAAF",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Arial',
                       fontSize: 30,
@@ -91,6 +74,7 @@ class HistoryView extends GetView<HistoryController> {
                   SizedBox(height: 8.0),
                   Text(
                     "Riwayat anda masih kosong",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Arial',
                       fontSize: 18,
@@ -99,6 +83,7 @@ class HistoryView extends GetView<HistoryController> {
                   ),
                   Text(
                     "Harap pesan konselor terlebih dahulu",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Arial',
                       fontSize: 18,
@@ -108,36 +93,32 @@ class HistoryView extends GetView<HistoryController> {
                 ],
               ),
             );
-          } else {
-            // Show the list if there is data
-            return ListView.builder(
-              padding: EdgeInsets.all(16.0),
-              itemCount: controller.orderedHistory.length,
-              itemBuilder: (context, index) {
-                final history = controller.orderedHistory[index];
-                return Card(
-                  elevation: 3.0,
-                  child: ListTile(
-                    leading: Icon(Icons.person, color: Colors.blue.shade500),
-                    title: Text(
-                      history['name'] ?? '',
-                      style: TextStyle(
-                        fontFamily: 'Arial',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(
-                      "Available days: ${history['days']}",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                );
-              },
-            );
           }
-        }),
 
+          // daftar riwayat booking dalam bentuk card
+          return ListView.builder(
+            padding: EdgeInsets.all(16.0),
+            itemCount: controller.bookingHistory.length,
+            itemBuilder: (context, index) {
+              final history = controller.bookingHistory[index];
+              return Card(
+                elevation: 3.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  contentPadding: EdgeInsets.all(12),
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.blue.shade500,
+                    child: Icon(Icons.person, color: Colors.white),
+                  ),
+                  title: Text(history.counselorName),
+                  subtitle: Text("${history.counselorBidang} • ${history.day}, ${history.time}"),
+                ),
+              );
+            },
+          );
+        }),
         backgroundColor: Colors.white,
       ),
     );

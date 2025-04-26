@@ -6,7 +6,6 @@ class CounselorController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Observable variables for counselor details and schedules
   var counselorData = {}.obs;
   var schedules = [].obs;
   var selectedScheduleId = ''.obs;
@@ -17,16 +16,17 @@ class CounselorController extends GetxController {
     super.onInit();
   }
 
-  // 🔄 **Toggle antara tampilan profil dan rating**
+  // Toggle antara tampilan profil dan rating
   void toggleView() {
     showRatingPage.value = !showRatingPage.value;
   }
 
-  // 🔍 **Fetch data counselor berdasarkan UID**
+  // Ambil data counselor berdasarkan UID
   Future<void> fetchCounselorData(String counselorUid) async {
     try {
-      final querySnapshot = await _firestore.collection('counselors')
-          .where('uid', isEqualTo: counselorUid) // 🔥 Cari berdasarkan UID
+      final querySnapshot = await _firestore
+          .collection('counselors')
+          .where('uid', isEqualTo: counselorUid)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
@@ -39,20 +39,65 @@ class CounselorController extends GetxController {
     }
   }
 
-  // 📅 **Fetch jadwal counselor berdasarkan UID**
+  // Fetch jadwal dari koleksi schedules berdasarkan counselorId dan sesuaikan dengan counselors
   Future<void> fetchSchedules(String counselorUid) async {
     try {
-      final result = await _firestore.collection('schedules')
-          .where('counselorId', isEqualTo: counselorUid) // 🔥 Cari berdasarkan UID
+      final counselorSnapshot = await _firestore
+          .collection('counselors')
+          .where('uid', isEqualTo: counselorUid)
           .get();
 
-      schedules.assignAll(result.docs.map((doc) {
+      if (counselorSnapshot.docs.isEmpty) {
+        print('Counselor tidak ditemukan.');
+        return;
+      }
+
+      final counselorData = counselorSnapshot.docs.first.data();
+
+      // Ambil `scheduleIdX` dari counselor dan gunakan untuk fetch data dari `schedules`
+      List<String> scheduleIds = [
+        counselorData['scheduleId1'] ?? '',
+        counselorData['scheduleId2'] ?? '',
+        counselorData['scheduleId3'] ?? ''
+      ].where((id) => id.isNotEmpty).toList().cast<String>(); // Perbaikan casting
+
+      if (scheduleIds.isEmpty) {
+        print('Tidak ada jadwal yang tersedia.');
+        schedules.clear();
+        return;
+      }
+
+      final schedulesSnapshot = await _firestore.collection('schedules')
+          .where('scheduleId', whereIn: scheduleIds)
+          .get();
+
+      schedules.assignAll(schedulesSnapshot.docs.map((doc) {
         final data = doc.data();
+        final scheduleId = data['scheduleId'];
+        final counselorId = data['counselorId'];
+        final isBooked = data['isBooked'] ?? false;
+
+        // Menampilkan jadwal dari counselor berdasarkan `scheduleIdX`
+        String adjustedDay = '';
+        String adjustedTime = '';
+
+        if (scheduleId == counselorData['scheduleId1']) {
+          adjustedDay = counselorData['availability_day1'] ?? '';
+          adjustedTime = counselorData['availability_time1'] ?? '';
+        } else if (scheduleId == counselorData['scheduleId2']) {
+          adjustedDay = counselorData['availability_day2'] ?? '';
+          adjustedTime = counselorData['availability_time2'] ?? '';
+        } else if (scheduleId == counselorData['scheduleId3']) {
+          adjustedDay = counselorData['availability_day3'] ?? '';
+          adjustedTime = counselorData['availability_time3'] ?? '';
+        }
+
         return {
-          'id': doc.id,
-          'day': data['day'],
-          'time': data['time'],
-          'isBooked': data['isBooked'] ?? false,
+          'id': scheduleId,
+          'counselorId': counselorId,
+          'day': adjustedDay,
+          'time': adjustedTime,
+          'isBooked': isBooked,
         };
       }).toList());
     } catch (e) {
@@ -60,14 +105,14 @@ class CounselorController extends GetxController {
     }
   }
 
-  // 🎯 **Booking jadwal oleh user**
+  // Booking jadwal oleh user
   Future<void> bookSchedule(String scheduleId, String counselorUid) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
     final scheduleRef = _firestore.collection('schedules').doc(scheduleId);
     final scheduleSnap = await scheduleRef.get();
-    
+
     if (!scheduleSnap.exists || scheduleSnap['isBooked'] == true) {
       Get.snackbar('Booking gagal', 'Jadwal tidak tersedia atau sudah dibooking.');
       return;
@@ -83,10 +128,10 @@ class CounselorController extends GetxController {
     final counselorName = counselorSnap.docs.first.data()['name'];
     final userName = userSnap['name'];
 
-    // 🔥 **Buat dokumen booking**
+    // Buat dokumen booking
     await _firestore.collection('bookings').add({
       'scheduleId': scheduleId,
-      'counselorId': counselorUid, // 🔥 Simpan UID sebagai referensi counselor
+      'counselorId': counselorUid, // Simpan UID sebagai referensi counselor
       'counselorName': counselorName,
       'userId': user.uid,
       'userName': userName,
@@ -94,35 +139,12 @@ class CounselorController extends GetxController {
       'createdAt': Timestamp.now(),
     });
 
-    // 🔥 **Tandai jadwal sebagai sudah dibooking**
+    // Tandai jadwal sebagai sudah dibooking
     await scheduleRef.update({'isBooked': true});
 
     selectedScheduleId.value = scheduleId;
     fetchSchedules(counselorUid); // Refresh jadwal
 
     Get.snackbar('Berhasil', 'Jadwal berhasil dibooking');
-  }
-
-  // ❌ **Fungsi untuk membatalkan booking jika user ingin mengubah jadwal**
-  Future<void> unbookSchedule(String scheduleId) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
-    final bookingSnap = await _firestore.collection('bookings')
-        .where('scheduleId', isEqualTo: scheduleId)
-        .where('userId', isEqualTo: user.uid)
-        .get();
-
-    if (bookingSnap.docs.isEmpty) {
-      Get.snackbar('Gagal', 'Tidak ada booking ditemukan untuk jadwal ini.');
-      return;
-    }
-
-    await _firestore.collection('bookings').doc(bookingSnap.docs.first.id).delete();
-    await _firestore.collection('schedules').doc(scheduleId).update({'isBooked': false});
-
-    fetchSchedules(bookingSnap.docs.first.data()['counselorId']); // Refresh jadwal
-
-    Get.snackbar('Berhasil', 'Booking dibatalkan');
   }
 }

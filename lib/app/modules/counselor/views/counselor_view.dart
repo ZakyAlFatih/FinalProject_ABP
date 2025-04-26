@@ -7,10 +7,10 @@ class CounselorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final counselorUid = Get.arguments['id'] ?? 'Unknown'; // Retrieve the counselor UID
+    final counselorUid = Get.arguments['id'] ?? 'Unknown';
     final controller = Get.put(CounselorController());
 
-    // Fetch counselor data and schedules using the UID
+    // Ambil data counselor dan jadwalnya berdasarkan UID
     controller.fetchCounselorData(counselorUid);
     controller.fetchSchedules(counselorUid);
 
@@ -61,11 +61,25 @@ class CounselorProfileWidget extends StatelessWidget {
               );
             }
 
-            // Generate schedule buttons dynamically
+            // Ambil `scheduleIdX` dari counselor untuk menampilkan jadwal yang sesuai
             List<Widget> scheduleButtons = controller.schedules.map((schedule) {
+              String adjustedDay = '';
+              String adjustedTime = '';
+
+              if (schedule['id'] == controller.counselorData['scheduleId1']) {
+                adjustedDay = controller.counselorData['availability_day1'] ?? '';
+                adjustedTime = controller.counselorData['availability_time1'] ?? '';
+              } else if (schedule['id'] == controller.counselorData['scheduleId2']) {
+                adjustedDay = controller.counselorData['availability_day2'] ?? '';
+                adjustedTime = controller.counselorData['availability_time2'] ?? '';
+              } else if (schedule['id'] == controller.counselorData['scheduleId3']) {
+                adjustedDay = controller.counselorData['availability_day3'] ?? '';
+                adjustedTime = controller.counselorData['availability_time3'] ?? '';
+              }
+
               return _buildScheduleBox(
-                schedule['day'],
-                schedule['time'],
+                adjustedDay,
+                adjustedTime,
                 isActive: !(schedule['isBooked'] as bool? ?? false),
                 onTap: () {
                   controller.selectedScheduleId.value = schedule['id'];
@@ -75,7 +89,7 @@ class CounselorProfileWidget extends StatelessWidget {
 
             return Column(
               children: [
-                // Profile Header
+                // Header Profil
                 Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(
@@ -108,7 +122,7 @@ class CounselorProfileWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 15),
 
-                // Profile Details
+                // Detail Profil
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Column(
@@ -131,13 +145,17 @@ class CounselorProfileWidget extends StatelessWidget {
 
                       const Text('Jadwal', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2897FF))),
                       Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: scheduleButtons,
+                        spacing: 12,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.center, // 🔥 Selalu berada di tengah
+                        children: scheduleButtons.isNotEmpty
+                            ? scheduleButtons
+                            : [const Text("Tidak ada jadwal tersedia", style: TextStyle(fontSize: 16, color: Colors.grey))],
                       ),
                       const Divider(color: Colors.blue),
                       const SizedBox(height: 20),
 
+                      // Tombol Booking
                       Center(
                         child: SizedBox(
                           width: 120,
@@ -176,17 +194,19 @@ class CounselorProfileWidget extends StatelessWidget {
 
   static Widget _buildScheduleBox(String day, String time, {bool isActive = true, VoidCallback? onTap}) {
     return GestureDetector(
-      onTap: isActive ? onTap : null, // Tap interaction
+      onTap: isActive ? onTap : null,
       child: Container(
-        padding: const EdgeInsets.all(8),
+        width: 120,
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: isActive ? Colors.blue : const Color(0xFFE8F1FF),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: isActive ? Colors.blue : Colors.blue, width: isActive ? 0 : 2),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(day, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isActive ? Colors.white : Colors.blue)),
+            const SizedBox(height: 5),
             Text(time, style: TextStyle(fontSize: 12, color: isActive ? Colors.white : Colors.blue)),
           ],
         ),
@@ -194,6 +214,7 @@ class CounselorProfileWidget extends StatelessWidget {
     );
   }
 }
+
 class RatingWidget extends StatelessWidget {
   final String counselorName;
 
