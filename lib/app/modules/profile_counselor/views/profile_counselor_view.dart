@@ -96,6 +96,21 @@ class ProfileCounselorView extends GetView<ProfileCounselorController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
+                          'Rating',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        Row(
+                          children: List.generate(
+                            (controller.userData['rate'] ?? 0.0).round(), // Round to nearest integer
+                            (index) => const Icon(Icons.star, color: Colors.blue, size: 35), // Display stars
+                          ),
+                        ),
+                        const SizedBox(height: 20), // Add spacing between stars and email
+
+                        const Text(
                           'Email',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,

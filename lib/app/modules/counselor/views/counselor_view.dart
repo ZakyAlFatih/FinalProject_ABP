@@ -1,3 +1,4 @@
+import 'package:finpro_abpx/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/counselor_controller.dart';
@@ -16,10 +17,14 @@ class CounselorView extends StatelessWidget {
 
     return Obx(() {
       return controller.showRatingPage.value
-          ? RatingWidget(
-              counselorName: controller.counselorData['name'] ?? 'Counselor',
-            )
-          : CounselorProfileWidget(controller: controller, counselorUid: counselorUid);
+      ? RatingWidget(
+          counselorName: controller.counselorData['name'] ?? 'Counselor',
+          counselorUid: controller.counselorData['uid']??'uid', // Passing the UID here
+        )
+      : CounselorProfileWidget(
+          controller: controller,
+          counselorUid: counselorUid, // Passing the UID here as well
+        );
     });
   }
 }
@@ -131,8 +136,8 @@ class CounselorProfileWidget extends StatelessWidget {
                       const Text('Rating', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2897FF))),
                       Row(
                         children: List.generate(
-                          controller.counselorData['rating'] ?? 0,
-                          (index) => const Icon(Icons.star, color: Colors.blue, size: 30),
+                          (controller.counselorData['rate'] ?? 0.0).round(), // Round to nearest integer
+                          (index) => const Icon(Icons.star, color: Colors.blue, size: 16),
                         ),
                       ),
                       const Divider(color: Colors.blue),
@@ -217,8 +222,13 @@ class CounselorProfileWidget extends StatelessWidget {
 
 class RatingWidget extends StatelessWidget {
   final String counselorName;
+  final String counselorUid;
 
-  const RatingWidget({super.key, required this.counselorName});
+  const RatingWidget({
+    super.key,
+    required this.counselorName,
+    required this.counselorUid,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -249,12 +259,13 @@ class RatingWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Display Counselor Profile Image
-            CircleAvatar(
-              radius: 80,
-              backgroundImage: NetworkImage(
-                controller.counselorData['avatar'] ?? 'https://via.placeholder.com/150',
-              ),
-            ),
+            Obx(() => CircleAvatar(
+                  radius: 80,
+                  backgroundImage: NetworkImage(
+                    controller.counselorData['avatar'] ??
+                        'https://via.placeholder.com/150',
+                  ),
+                )),
             const SizedBox(height: 65),
 
             // Rating Prompt
@@ -268,24 +279,28 @@ class RatingWidget extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            // Star Rating Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                5,
-                (index) => IconButton(
-                  icon: const Icon(
-                    Icons.star_border,
-                    color: Colors.grey,
-                    size: 75,
-                  ),
-                  onPressed: () {
-                    // Handle Star Selection
-                    print('Star $index clicked');
-                  },
-                ),
-              ),
-            ),
+            // Interactive Star Rating Row
+            Obx(() {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  return IconButton(
+                    icon: Icon(
+                      index < controller.currentRating.value
+                          ? Icons.star
+                          : Icons.star_border,
+                      color: index < controller.currentRating.value
+                          ? Colors.blue
+                          : Colors.grey,
+                      size: 55,
+                    ),
+                    onPressed: () {
+                      controller.currentRating.value = index + 1; // Update rating
+                    },
+                  );
+                }),
+              );
+            }),
 
             const SizedBox(height: 70),
 
@@ -302,9 +317,11 @@ class RatingWidget extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    print('Rating saved!');
+                    controller.saveRating(counselorUid); // Corrected Save Logic
+                    Get.offAllNamed(Routes.NAVBAR); // Navigate to home page using routes
                   },
-                  child: const Text('Simpan', style: TextStyle(color: Colors.white)),
+                  child:
+                      const Text('Simpan', style: TextStyle(color: Colors.white)),
                 ),
               ),
             ),

@@ -147,4 +147,76 @@ class CounselorController extends GetxController {
 
     Get.snackbar('Berhasil', 'Jadwal berhasil dibooking');
   }
+
+  // Changed variable name from 'counselorData' to 'dataCounselor'
+  var dataCounselor = {}.obs; // Reactive data for counselor details
+  var currentRating = 0.obs; // Reactive variable to store the selected rating
+
+  // Renamed method to toggleViewReset
+  void toggleViewReset() {
+    currentRating.value = 0; // Reset the rating
+  }
+
+  void saveRating(String counselorUid) async {
+    try {
+      // Ensure the user is logged in
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        print('User not logged in.');
+        Get.snackbar('Error', 'Silahkan login terlebih dahulu.');
+        return;
+      }
+
+      // Reference the counselor document using the passed uid
+      final counselorRef = _firestore.collection('counselors').doc(counselorUid);
+
+      // Check if the counselor document exists
+      final docSnapshot = await counselorRef.get();
+      if (!docSnapshot.exists) {
+        print('Counselor document not found.');
+        Get.snackbar('Error', 'Counselor tidak ditemukan.');
+        return;
+      }
+
+      // Get the current ratings list
+      final counselorData = docSnapshot.data();
+      if (counselorData == null || counselorData['rating'] == null) {
+        print('Rating field missing.');
+        Get.snackbar('Error', 'Field rating tidak ditemukan.');
+        return;
+      }
+
+      List<dynamic> ratingList = List.from(counselorData['rating']);
+
+      // Append the new rating (allow duplicates)
+      double newRating = currentRating.value.toDouble();
+      ratingList.add(newRating); // Add directly to the list
+
+      // Save the updated rating array back to Firestore
+      await counselorRef.update({
+        'rating': ratingList, // Overwrite the array with the updated list
+      });
+
+      // Calculate the new overall rate
+      double rate;
+      if (ratingList.isEmpty) {
+        rate = newRating; // If there's 1 data point
+      } else {
+        rate = ratingList.reduce((a, b) => a + b) / ratingList.length; // Average calculation
+      }
+
+      // Save the calculated rate back to Firestore
+      await counselorRef.update({'rate': rate});
+
+      print('Rating saved: $newRating');
+      print('New calculated rate: $rate');
+      Get.snackbar('Berhasil', 'Rating berhasil disimpan.');
+
+      // Optionally, reset the rating after saving
+      toggleViewReset();
+    } catch (e) {
+      print('Error saving rating: $e');
+      Get.snackbar('Error', 'Gagal menyimpan rating');
+    }
+  }
 }
