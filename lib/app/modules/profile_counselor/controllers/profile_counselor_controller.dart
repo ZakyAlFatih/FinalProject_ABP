@@ -125,7 +125,7 @@ class ProfileCounselorController extends GetxController {
       } else if (password != confirmPassword) {
         Get.snackbar('Error', 'Passwords do not match!');
       }
-
+      
       isEditing.value = false; 
     } catch (e) {
       Get.snackbar('Error', 'Gagal memperbarui profil: $e');

@@ -46,6 +46,8 @@ class RegisterCounselorController extends GetxController {
         'bidang': bidang.value.trim(),
         'role': 'counselor', // ✅ Ditambahkan field role
         'createdAt': FieldValue.serverTimestamp(),
+        'rate': 0, // ✅ Initialize rate with 0
+        'rating': [], // ✅ Initialize rating as an empty array
       });
 
       Get.snackbar("Success", "Counselor account created successfully");
