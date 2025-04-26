@@ -84,17 +84,17 @@ class HistoryController extends GetxController {
       isFetching.value = true; // Tandai bahwa data sedang diambil
 
       String userId = _auth.currentUser!.uid;
-      print("Fetching booking history for userId: $userId");
+      print("Fetching booking history from collection `history` for userId: $userId");
 
-      final bookingSnapshot = await _firestore.collection('bookings')
+      final historySnapshot = await _firestore.collection('history')
           .where('userId', isEqualTo: userId)
           .get();
 
       List<HistoryEntry> historyEntries = [];
 
-      for (var bookingDoc in bookingSnapshot.docs) {
-        final bookingData = bookingDoc.data();
-        final counselorId = bookingData['counselorId'] ?? '';
+      for (var historyDoc in historySnapshot.docs) {
+        final historyData = historyDoc.data();
+        final counselorId = historyData['counselorId'] ?? '';
 
         Map<String, dynamic>? counselorData;
 
@@ -113,17 +113,27 @@ class HistoryController extends GetxController {
         print("CounselorId: $counselorId");
         print("Data counselor: $counselorData");
 
-        // Tambahkan entry ke list riwayat
-        var historyEntry = HistoryEntry.fromFirestore(bookingData, counselorData);
+        // Tambahkan entry ke list riwayat dari koleksi `history`
+        var historyEntry = HistoryEntry(
+          userId: historyData['userId'] ?? '',
+          counselorId: historyData['counselorId'] ?? '',
+          counselorName: counselorData?['name'] ?? 'Tidak diketahui',
+          counselorBidang: counselorData?['bidang'] ?? 'Tidak diketahui',
+          scheduleId: historyData['bookingId'] ?? '',
+          day: historyData['day'] ?? 'Tidak tersedia',
+          time: historyData['time'] ?? 'Tidak tersedia',
+          status: 'completed', // History selalu dari sesi yang selesai
+        );
+
         print("Riwayat booking ditambahkan: ${historyEntry.counselorName}, ${historyEntry.day}, ${historyEntry.time}");
         historyEntries.add(historyEntry);
       }
 
       bookingHistory.assignAll(historyEntries);
-      print("Total bookings found: ${bookingHistory.length}");
+      print("Total history found: ${bookingHistory.length}");
 
     } catch (e) {
-      print('Error mengambil riwayat booking: $e');
+      print('Error mengambil riwayat booking dari `history`: $e');
 
     } finally {
       isFetching.value = false; // Tandai bahwa proses fetching selesai
