@@ -114,38 +114,6 @@ class HomeView extends GetView<HomeController> {
             ),
             SizedBox(width: 30),
 
-            // Search Bar
-            Expanded(
-              child: Container(
-                height: 30,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4.0,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Cari',
-                    suffixIcon: Icon(Icons.search, color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 10),
-
             // Profile Icon with Horizontal Half Rectangle
             Stack(
               alignment: Alignment.centerLeft,

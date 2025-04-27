@@ -137,7 +137,7 @@ class CounselorProfileWidget extends StatelessWidget {
                       Row(
                         children: List.generate(
                           (controller.counselorData['rate'] ?? 0.0).round(), // Round to nearest integer
-                          (index) => const Icon(Icons.star, color: Colors.blue, size: 16),
+                          (index) => const Icon(Icons.star, color: Colors.blue, size: 30),
                         ),
                       ),
                       const Divider(color: Colors.blue),
@@ -152,7 +152,7 @@ class CounselorProfileWidget extends StatelessWidget {
                       Wrap(
                         spacing: 12,
                         runSpacing: 12,
-                        alignment: WrapAlignment.center, // 🔥 Selalu berada di tengah
+                        alignment: WrapAlignment.center, // Selalu berada di tengah
                         children: scheduleButtons.isNotEmpty
                             ? scheduleButtons
                             : [const Text("Tidak ada jadwal tersedia", style: TextStyle(fontSize: 16, color: Colors.grey))],
@@ -184,7 +184,7 @@ class CounselorProfileWidget extends StatelessWidget {
                       const SizedBox(height: 10),
                       TextButton(
                         onPressed: controller.toggleView,
-                        child: const Text('Testing', style: TextStyle(color: Colors.blue)),
+                        child: const Text('Rating', style: TextStyle(color: Colors.blue)),
                       )
                     ],
                   ),

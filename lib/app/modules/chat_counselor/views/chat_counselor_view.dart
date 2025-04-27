@@ -17,8 +17,7 @@ class _ChatCounselorViewState extends State<ChatCounselorView> {
 
   String senderId = FirebaseAuth.instance.currentUser!.uid;
   String senderName = FirebaseAuth.instance.currentUser!.displayName ?? 'User';
-  String senderAvatar = FirebaseAuth.instance.currentUser!.photoURL ??
-      'https://via.placeholder.com/50';
+  String senderAvatar = FirebaseAuth.instance.currentUser!.photoURL ?? 'https://via.placeholder.com/50';
 
   String? receiverId;
   String? receiverName;
@@ -49,45 +48,68 @@ class _ChatCounselorViewState extends State<ChatCounselorView> {
               )
             : null,
       ),
-      body: receiverId == null ? _buildCounselorList() : _buildChatUI(),
+      body: receiverId == null ? _buildBookedUserList() : _buildChatUI(),
     );
   }
 
-  Widget _buildCounselorList() {
+  // Tampilkan daftar user yang sudah membooking konselor
+  Widget _buildBookedUserList() {
     return FutureBuilder<QuerySnapshot>(
       future: FirebaseFirestore.instance
-          .collection('users')
-          .where('role', isEqualTo: 'user')
+          .collection('bookings')
+          .where('counselorId', isEqualTo: senderId) // Hanya ambil user yang membooking konselor ini
           .get(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return const Center(child: CircularProgressIndicator());
-        var docs = snapshot.data!.docs;
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        var bookingDocs = snapshot.data!.docs;
+
+        if (bookingDocs.isEmpty) {
+          return const Center(
+            child: Text(
+              "Belum ada user yang membooking Anda",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+            ),
+          );
+        }
+
+        // Gunakan Set untuk memastikan hanya satu user per counselor
+        Set<String> uniqueUserIds = {};
+        List<Map<String, dynamic>> uniqueUsers = [];
+
+        for (var doc in bookingDocs) {
+          var data = doc.data() as Map<String, dynamic>;
+          if (!uniqueUserIds.contains(data['userId'])) {
+            uniqueUserIds.add(data['userId']);
+            uniqueUsers.add({
+              'userId': data['userId'],
+              'userName': data['userName'],
+            });
+          }
+        }
 
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 10),
-          itemCount: docs.length,
-          separatorBuilder: (context, index) =>
-              const Divider(height: 1, indent: 70, endIndent: 20),
+          itemCount: uniqueUsers.length,
+          separatorBuilder: (context, index) => const Divider(height: 1, indent: 70, endIndent: 20),
           itemBuilder: (context, index) {
-            var doc = docs[index];
+            var userData = uniqueUsers[index];
+            String userId = userData['userId'];
+            String userName = userData['userName'];
+
             return ListTile(
               onTap: () {
                 setState(() {
-                  receiverId = doc.id;
-                  receiverName = doc['name'];
-                  receiverAvatar =
-                      doc['avatar'] ?? 'https://via.placeholder.com/50';
+                  receiverId = userId;
+                  receiverName = userName;
+                  receiverAvatar = 'https://via.placeholder.com/50';
                 });
               },
               leading: CircleAvatar(
                 radius: 24,
-                backgroundImage: NetworkImage(
-                  doc['avatar'] ?? 'https://via.placeholder.com/50',
-                ),
+                backgroundImage: NetworkImage('https://via.placeholder.com/50'),
               ),
               title: Text(
-                doc['name'],
+                userName,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: const Text('Klik untuk mulai chat'),
@@ -108,14 +130,11 @@ class _ChatCounselorViewState extends State<ChatCounselorView> {
                 .orderBy('timestamp')
                 .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData)
-                return const Center(child: CircularProgressIndicator());
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
               var messages = snapshot.data!.docs.where((doc) {
                 var data = doc.data() as Map<String, dynamic>;
-                return (data['senderId'] == senderId &&
-                        data['receiverId'] == receiverId) ||
-                    (data['senderId'] == receiverId &&
-                        data['receiverId'] == senderId);
+                return (data['senderId'] == senderId && data['receiverId'] == receiverId) ||
+                    (data['senderId'] == receiverId && data['receiverId'] == senderId);
               }).toList();
 
               return ListView(
@@ -124,21 +143,17 @@ class _ChatCounselorViewState extends State<ChatCounselorView> {
                   var data = doc.data() as Map<String, dynamic>;
                   bool isMe = data['senderId'] == senderId;
                   return Align(
-                    alignment:
-                        isMe ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: isMe ? Colors.blue : Colors.grey[300],
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         data['content'],
-                        style: TextStyle(
-                            color: isMe ? Colors.white : Colors.black),
+                        style: TextStyle(color: isMe ? Colors.white : Colors.black),
                       ),
                     ),
                   );
